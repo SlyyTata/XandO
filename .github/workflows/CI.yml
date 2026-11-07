@@ -1,0 +1,39 @@
+name: node.js application CI
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+    
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Copy the code to the runner
+      uses: actions/checkout@v4
+      
+    - name: Test the code
+      run: npm test
+
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: copy the source code over
+        uses: actions/checkout@v4
+
+      - name: package the code
+        run: npm ci
+
+  Static_code_analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout the code
+        uses: actions/checkout@v4
+
+      - name: test with trivy
+        uses: 
