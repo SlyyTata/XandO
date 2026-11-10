@@ -34,6 +34,7 @@ jobs:
   Lint:
     # Start of the Static code Analysis stage where the source code is made available and 
     #test for bugs and functionality issues
+    needs: [Test]
     name: Lint the code
     runs-on: ubuntu-latest
 
@@ -56,6 +57,7 @@ jobs:
   Scan:
     # Start of the Security scan stage where the source code is made available and 
     # the code is scanned for vulnerabilities
+    needs: [ Test, Lint ]
     name: Scan the code
     runs-on: ubuntu-latest
 
@@ -73,32 +75,10 @@ jobs:
           scan-ref: .
           exit-code: 0
 
-  # Build stage for building the code on the runner
-  Build:
-    # Start of the Build stage where the source code is made available and 
-    #the code is built on the runner
-    name: Build the code
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: checkout the code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 24.x
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24.x
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build the code
-        run: npm run build
-
+  
   Build_Tag_Push_With_Docker:
     # Start of the Build stage where the source code is made available and 
     #the code is built on the runner
-    needs: [Build]
     name: Build and Tag with Docker
     runs-on: ubuntu-latest
 
