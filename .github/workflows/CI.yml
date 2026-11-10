@@ -175,10 +175,4 @@ jobs:
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}
           wait-for-service-stability: false            
 
-      # ADDED: Dedicated validation step to cleanly monitor progress and handle health checks
-      - name: Wait for Amazon ECS deployment to stabilize
-        uses: aws-actions/amazon-ecs-wait-for-task-definition@v2
-        with:
-          task-definition: ${{ steps.deploy-task.outputs.task-definition }}
-          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
           
