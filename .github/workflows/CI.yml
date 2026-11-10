@@ -96,6 +96,7 @@ jobs:
       - name: Docker Buildx Setup
         uses: docker/setup-buildx-action@v3
 
+      # This action will build the Docker image and push it to the DockerHub repository
       - name: Build and Tag Docker Image
         uses: docker/build-push-action@v6
         with:
@@ -158,6 +159,7 @@ jobs:
 
           jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' raw-task-def.json > task-definition.json
 
+      # Putting the new image tag into the task definition so that it can be deployed to the ECS cluster
       - name: Inject New Image Tag into Task Definition
         id: render-task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
