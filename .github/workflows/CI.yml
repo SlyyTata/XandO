@@ -19,10 +19,10 @@ jobs:
     - name: Copy the code to the runner
       uses: actions/checkout@v4
       
-    - name: Setup Node.js 20.x
+    - name: Setup Node.js 24.x
       uses: actions/setup-node@v7
       with:
-        node-version: 20.x
+        node-version: 24.x
 
     - name: Install dependencies
       run: npm install
@@ -41,10 +41,10 @@ jobs:
       - name: copy the source code over
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 24.x
         uses: actions/setup-node@v7
         with:
-          node-version: 20.x
+          node-version: 24.x
         
       - name: Install dependencies
         run: npm install
@@ -84,10 +84,10 @@ jobs:
       - name: checkout the code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 24.x
         uses: actions/setup-node@v7
         with:
-          node-version: 20.x
+          node-version: 24.x
 
       - name: Install dependencies
         run: npm install
@@ -109,7 +109,7 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ github.repository_owner }}
+          username: ${{ secrets.DOCKER_NAME }}
           password: ${{ secrets.DOCKER_TOK }}
 
       - name: Docker Buildx Setup
@@ -121,8 +121,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ github.repository_owner }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
-            ${{ github.repository_owner }}/${{ secrets.DOCKER_PROJECT }}:latest
+            ${{ secrets.DOCKER_NAME }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
+            ${{ secrets.DOCKER_NAME }}/${{ secrets.DOCKER_PROJECT }}:latest
       
   # Image scan stage for scanning the Docker image for vulnerabilities
   Scan_Docker_Image:
@@ -140,7 +140,7 @@ jobs:
       - name: Generate Trivy Vulnerability Report
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ github.repository_owner }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
+          image-ref: ${{ secrets.DOCKER_NAME }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -174,7 +174,7 @@ jobs:
         with:
           task-definition: task-definition.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME }}
-          image: ${{ github.repository_owner }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
+          image: ${{ secrets.DOCKER_NAME }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
 
       - name: Trigger Rolling Update on Existing ECS Service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
