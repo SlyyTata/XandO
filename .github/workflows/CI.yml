@@ -152,10 +152,11 @@ jobs:
       # Stripped out invalid metadata fields that cause AWS errors on registration
       - name: Download Existing Task Definition from AWS
         run: |
-            aws ecs describe-task-definition \
+          aws ecs describe-task-definition \
             --task-definition ${{ secrets.ECS_TASK_FAMILY }} \
-            --query 'taskDefinition | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
-            > task-definition.json
+            --query 'taskDefinition' > raw-task-def.json
+
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' raw-task-def.json > task-definition.json
 
       - name: Inject New Image Tag into Task Definition
         id: render-task-def
