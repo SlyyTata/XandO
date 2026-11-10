@@ -149,9 +149,13 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
-      #I got this code form google and iv read to understand what it does
+      # Stripped out invalid metadata fields that cause AWS errors on registration
       - name: Download Existing Task Definition from AWS
-        run: aws ecs describe-task-definition --task-definition ${{ secrets.ECS_TASK_FAMILY }} --query taskDefinition > task-definition.json
+        run: |
+            aws ecs describe-task-definition \
+            --task-definition ${{ secrets.ECS_TASK_FAMILY }} \
+            --query 'taskDefinition | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
+            > task-definition.json
 
       - name: Inject New Image Tag into Task Definition
         id: render-task-def
@@ -161,11 +165,19 @@ jobs:
           container-name: ${{ secrets.ECS_CONTAINER_NAME }}
           image: ${{ secrets.DOCKER_NAME }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
 
+      # Trigger the rolling update instantly without blocking this specific step
       - name: Trigger Rolling Update on Existing ECS Service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.render-task-def.outputs.task-definition }}
           service: ${{ secrets.ECS_SERVICE_NAME }}
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}
-          wait-for-service-stability: true            # Until service is stable.
+          wait-for-service-stability: false            
+
+      # ADDED: Dedicated validation step to cleanly monitor progress and handle health checks
+      - name: Wait for Amazon ECS deployment to stabilize
+        uses: aws-actions/amazon-ecs-wait-for-task-definition@v2
+        with:
+          task-definition: ${{ steps.deploy-task.outputs.task-definition }}
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
           
