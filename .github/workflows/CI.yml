@@ -79,6 +79,7 @@ jobs:
   Build_Tag_Push_With_Docker:
     # Start of the Build stage where the source code is made available and 
     #the code is built on the runner
+    needs: [ Scan ]
     name: Build and Tag with Docker
     runs-on: ubuntu-latest
 
