@@ -1,4 +1,4 @@
-name: node.js application CI $ CD
+name: node.js application CI/CD Pipeline
 
 on:
   push:
@@ -73,7 +73,7 @@ jobs:
           output: trivy-fs-report.json
           format: table
           scan-ref: .
-          exit-code: 0
+          exit-code: 1
 
   
   Build_Tag_Push_With_Docker:
@@ -106,6 +106,7 @@ jobs:
             ${{ secrets.DOCKER_NAME }}/${{ secrets.DOCKER_PROJECT }}:${{ github.sha }}
             ${{ secrets.DOCKER_NAME }}/${{ secrets.DOCKER_PROJECT }}:latest
       
+
   # Image scan stage for scanning the Docker image for vulnerabilities
   Scan_Docker_Image:
     # Start of the Image scan stage where the Docker image is made available and 
@@ -129,8 +130,9 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
+
   # Start of the deployment stage where the Docker image is deployed to the amazon ECS cluster
-  Deploy:
+  Deploy_To_AWS_ECS:
     needs: [Scan_Docker_Image]
     name: Deploy the Docker image to Amazon ECS
     runs-on: ubuntu-latest
