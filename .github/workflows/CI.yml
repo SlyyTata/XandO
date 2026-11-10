@@ -134,6 +134,10 @@ jobs:
     name: Deploy the Docker image to Amazon ECS
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+      
     steps:
       - name: checkout the code
         uses: actions/checkout@v4
